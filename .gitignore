@@ -1,0 +1,13 @@
+# PyCharm
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+.DS_Store
+# 但如果你想保留 sample_submission.csv，可以这样写：
+/data/*
+!/data/sample_submission.csv
