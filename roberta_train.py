@@ -14,7 +14,7 @@ import warnings
 
 import matplotlib
 
-matplotlib.use('Agg')  # 非交互式后端，防止在服务器上画图报错
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei', 'Arial Unicode MS', 'DejaVu Sans']  # 防止中文乱码
@@ -24,23 +24,22 @@ warnings.filterwarnings("ignore")
 
 
 # ==========================================
-# 1. 配置参数 (已根据你的文件名修改)
+# 1. 配置参数
 # ==========================================
 class Config:
-    MODEL_NAME = "distilroberta-base"  # 也可以尝试 'distilroberta-base' 速度更快
-    TRAIN_FILE = "/kaggle/input/datasets/lik586/111111/train.csv"  # 你上传的训练集
-    TEST_FILE = "/kaggle/input/datasets/lik586/111111/test.csv"  # 你上传的测试集 (原名 test.csv)
+    MODEL_NAME = "distilroberta-base"
+    TRAIN_FILE = "/kaggle/input/datasets/lik586/111111/train.csv"  # 训练集
+    TEST_FILE = "/kaggle/input/datasets/lik586/111111/test.csv"  # 测试集
     SAMPLE_SUB = "/kaggle/input/datasets/lik586/111111/sample_submission.csv"  # 提交样例
-    OUTPUT_FILE = "/kaggle/working/submission.csv"  # 最终生成的提交文件
+    OUTPUT_FILE = "/kaggle/working/submission.csv"  # 提交文件
 
-    MAX_LENGTH = 64  # 根据你的数据特点，64 已经足够了，过长可能会增加训练时间
+    MAX_LENGTH = 64
     TRAIN_BATCH_SIZE = 256
     VALID_BATCH_SIZE = 256
     EPOCHS = 3
     LEARNING_RATE = 2e-5
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # 目标列名 (根据 Jigsaw 数据集标准)
+    # 目标列名
     TARGET_COLS = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
 
 
@@ -70,19 +69,16 @@ def clean_data(df, is_train=True):
 
 
 print("正在加载数据...")
-# 加载你上传的四个文件
+# 加载上传的四个文件
 train_df = pd.read_csv(config.TRAIN_FILE)
 test_df = pd.read_csv(config.TEST_FILE)
 sample_sub = pd.read_csv(config.SAMPLE_SUB)
-
 # 数据清洗
-# 注意：train.csv 通常不需要过滤 -1，但为了保险起见，如果里面有 -1 也会被过滤
 train_df = clean_data(train_df, is_train=True)
 
 print(f"训练集有效行数: {len(train_df)}")
 print(f"测试集行数: {len(test_df)}")
 print(f"设备: {config.DEVICE}")
-
 
 # ==========================================
 # 3. Dataset 类
@@ -94,7 +90,7 @@ class JigsawDataset(Dataset):
         self.max_length = max_length
         self.is_test = is_test
 
-        # 确定文本列名 (train 是 comment_text, test 可能是 text 或 comment_text)
+        # 确定文本列名
         self.text_col = 'comment_text' if 'comment_text' in df.columns else 'text'
         self.texts = df[self.text_col].values
 
@@ -131,7 +127,6 @@ class JigsawDataset(Dataset):
                 'attention_mask': encoding['attention_mask'].flatten(),
                 'ids': self.ids[idx]
             }
-
 
 # ==========================================
 # 4. 模型定义
@@ -273,9 +268,7 @@ def run():
             torch.save(model.state_dict(), "best_model.bin")
             print(f"Model Saved with loss: {best_loss}")
 
-    # --- 新增：画图代码 (放在 run() 函数的最后，end 之前) ---
-    # 由于 RoBERTa 的训练 Loss 在 train_fn 里，为了不打乱逻辑，我们先只画 Val Loss
-    # 或者你可以参考下面的“进阶版”修改 train_fn 让它返回 loss
+    # --- 新增：画图代码  ---
 
     plt.figure(figsize=(8, 5))
     plt.plot(range(1, config.EPOCHS + 1), roberta_val_losses, label='RoBERTa 验证 Loss', marker='o', color='orange')
@@ -320,7 +313,6 @@ def run():
 
     # 生成提交文件
     sub_df = pd.DataFrame(predictions)
-    # 确保列顺序与 sample_submission 一致
     sub_df = sub_df[['id'] + config.TARGET_COLS]
     sub_df.to_csv(config.OUTPUT_FILE, index=False)
     print(f"提交文件已生成: {config.OUTPUT_FILE}")

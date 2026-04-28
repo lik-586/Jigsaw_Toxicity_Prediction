@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 from collections import Counter
 import time
 import matplotlib
-matplotlib.use('Agg') # 非交互式后端，防止在服务器上画图报错
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rcParams['font.sans-serif'] = ['SimHei', 'Arial Unicode MS', 'DejaVu Sans'] # 防止中文乱码
 plt.rcParams['axes.unicode_minus'] = False
@@ -50,10 +50,8 @@ config = Config()
 def build_vocab(texts, max_size):
     counter = Counter()
     for text in texts:
-        # 简单的分词（空格分词），实际可换成更复杂的
         counter.update(text.split())
 
-    # 取最常见的词
     vocab = {'<PAD>': 0, '<UNK>': 1}
     for word, _ in counter.most_common(max_size - 2):
         vocab[word] = len(vocab)
@@ -230,7 +228,6 @@ for epoch in range(config.EPOCHS):
 
     if val_loss < best_val_loss:
         best_val_loss = val_loss
-        # 可以在这里保存模型 torch.save(model.state_dict(), 'best_cnn.pt')
 
     epoch_mins, epoch_secs = divmod(int(time.time() - start_time), 60)
     print(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
