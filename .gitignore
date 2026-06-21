@@ -1,13 +1,45 @@
-# PyCharm
+# IDE
 .idea/
 *.iml
+.trae/
 
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
 venv/
 env/
+.env/
+
+# Data
+data/train.csv
+data/test.csv
+!data/sample_submission.csv
+
+# Models
+*.bin
+*.pth
+*.pt
+outputs/
+
+# Submissions
+submission*.csv
+
+# Visualizations
+*.png
+
+# System
 .DS_Store
-# 但如果你想保留 sample_submission.csv，可以这样写：
-/data/*
-!/data/sample_submission.csv
+Thumbs.db
+
+# Logs
+*.log
+
+# HuggingFace cache
+.huggingface/
+
+# Temporary files
+write_readme.py
+TEST_REPORT.md
